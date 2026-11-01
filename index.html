@@ -11,8 +11,8 @@
 </head>
 <body class="bg-stone-50 text-stone-800 font-sans antialiased">
 
-    <!-- TOP NAVIGATION BAR -->
-    <nav class="sticky top-0 z-50 bg-stone-900 text-stone-100 shadow-md">
+    <!-- TOP NAVIGATION BAR (Hidden until logged in) -->
+    <nav id="main-nav" class="hidden sticky top-0 z-50 bg-stone-900 text-stone-100 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Brand Logo -->
@@ -26,26 +26,23 @@
                     <button onclick="switchTab('storefront')" id="nav-storefront" class="px-3 py-2 rounded-md text-sm font-medium bg-amber-600 text-white transition">
                         Shop & Catalog
                     </button>
-                    <!-- Guarded: Requires Customer Login -->
+                    <!-- Customer Custom Design Demand -->
                     <button onclick="handleCustomDemandAccess()" id="nav-custom-demand" class="px-3 py-2 rounded-md text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-800 transition">
                         Demand Custom Design
                     </button>
-                    <!-- Guarded: Requires Owner Password -->
+                    <!-- Owner Dashboard (Owner Only) -->
                     <button onclick="handleDashboardAccess()" id="nav-dashboard" class="px-3 py-2 rounded-md text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-800 transition flex items-center space-x-1">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                         <span>Owner Dashboard</span>
                     </button>
 
-                    <!-- Auth Status / Logout Button -->
+                    <!-- User Badge & Logout -->
                     <div id="auth-nav-container" class="border-l border-stone-700 pl-3">
-                        <button onclick="switchTab('login')" id="btn-login-nav" class="bg-stone-800 hover:bg-stone-700 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-md text-sm font-medium transition flex items-center space-x-1">
-                            <i data-lucide="log-in" class="w-4 h-4"></i>
-                            <span>Login / Portal</span>
-                        </button>
-                        <div id="user-badge" class="hidden flex items-center space-x-2">
+                        <div id="user-badge" class="flex items-center space-x-2">
                             <span id="user-display-name" class="text-xs bg-amber-900/60 text-amber-300 px-2.5 py-1 rounded-full border border-amber-600/30"></span>
-                            <button onclick="logout()" class="text-stone-400 hover:text-red-400 p-1 transition" title="Logout">
-                                <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <button onclick="logout()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs px-2.5 py-1 rounded-md font-medium transition flex items-center space-x-1" title="Logout">
+                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                                <span>Logout</span>
                             </button>
                         </div>
                     </div>
@@ -57,15 +54,27 @@
     <!-- MAIN CONTAINER -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- ================= 1. LOGIN & REGISTRATION VIEW ================= -->
-        <section id="view-login" class="hidden">
-            <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg border border-stone-200 overflow-hidden">
+        <!-- ================= 1. MANDATORY GATEWAY LOGIN & REGISTRATION VIEW ================= -->
+        <section id="view-login" class="py-8 sm:py-12">
+            <!-- Brand Landing Header for Login Page -->
+            <div class="text-center mb-8">
+                <div class="inline-flex p-4 bg-amber-600 text-white rounded-2xl shadow-md mb-3">
+                    <i data-lucide="armchair" class="w-10 h-10"></i>
+                </div>
+                <h1 class="font-serif text-3xl sm:text-4xl font-bold text-stone-900">CRAFTED LIVING</h1>
+                <p class="text-stone-600 text-sm sm:text-base mt-1">Custom Furniture Fabrication & Catalog Portal</p>
+                <div class="mt-3 inline-block bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold">
+                    🔒 Access Restricted — Please Sign In Below
+                </div>
+            </div>
+
+            <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden">
                 <!-- Auth Header Tabs -->
                 <div class="flex border-b border-stone-200 bg-stone-100">
-                    <button onclick="switchAuthTab('customer-login')" id="tab-btn-customer" class="flex-1 py-3 text-sm font-bold text-center text-amber-700 border-b-2 border-amber-600 bg-white">
-                        Customer Portal
+                    <button onclick="switchAuthTab('customer-login')" id="tab-btn-customer" class="flex-1 py-3.5 text-sm font-bold text-center text-amber-700 border-b-2 border-amber-600 bg-white transition">
+                        Customer Gateway
                     </button>
-                    <button onclick="switchAuthTab('owner-login')" id="tab-btn-owner" class="flex-1 py-3 text-sm font-bold text-center text-stone-500 hover:text-stone-800">
+                    <button onclick="switchAuthTab('owner-login')" id="tab-btn-owner" class="flex-1 py-3.5 text-sm font-bold text-center text-stone-500 hover:text-stone-800 bg-stone-100 transition">
                         Owner Admin Login
                     </button>
                 </div>
@@ -74,55 +83,56 @@
                     <!-- Customer Login Form -->
                     <div id="form-customer-login" class="space-y-4">
                         <div class="text-center mb-4">
-                            <h3 class="font-serif text-xl font-bold text-stone-900">Customer Access</h3>
-                            <p class="text-xs text-stone-500 mt-1">Please log in to submit custom furniture design demands</p>
+                            <h3 class="font-serif text-xl font-bold text-stone-900">Customer Login</h3>
+                            <p class="text-xs text-stone-500 mt-1">Sign in to enter shop catalog & demand custom designs</p>
                         </div>
                         <form onsubmit="loginCustomer(event)" class="space-y-3">
                             <div>
                                 <label class="block text-xs font-semibold text-stone-600 mb-1">Email or Phone Number</label>
-                                <input type="text" id="cust-login-id" required placeholder="customer@example.com" class="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <input type="text" id="cust-login-id" required placeholder="customer@example.com" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-stone-600 mb-1">Password</label>
-                                <input type="password" id="cust-login-pass" required placeholder="••••••••" class="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <input type="password" id="cust-login-pass" required placeholder="••••••••" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
                             </div>
-                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                                Customer Sign In
+                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg text-sm transition shadow-md flex items-center justify-center space-x-2">
+                                <i data-lucide="log-in" class="w-4 h-4"></i>
+                                <span>Sign In to Shop</span>
                             </button>
                         </form>
-                        <div class="text-center pt-3 border-t text-xs text-stone-500">
-                            Don't have an account? <button onclick="toggleCustomerRegister()" class="text-amber-700 font-bold hover:underline">Register Here</button>
+                        <div class="text-center pt-4 border-t text-xs text-stone-500">
+                            Don't have an account? <button onclick="toggleCustomerRegister()" class="text-amber-700 font-bold hover:underline">Register New Account</button>
                         </div>
                     </div>
 
                     <!-- Customer Register Form -->
                     <div id="form-customer-register" class="hidden space-y-4">
                         <div class="text-center mb-4">
-                            <h3 class="font-serif text-xl font-bold text-stone-900">Create Customer Account</h3>
-                            <p class="text-xs text-stone-500 mt-1">Join to submit custom demands and track your orders</p>
+                            <h3 class="font-serif text-xl font-bold text-stone-900">Create Account</h3>
+                            <p class="text-xs text-stone-500 mt-1">Register to view products & upload custom demands</p>
                         </div>
                         <form onsubmit="registerCustomer(event)" class="space-y-3">
                             <div>
                                 <label class="block text-xs font-semibold text-stone-600 mb-1">Full Name</label>
-                                <input type="text" id="reg-cust-name" required placeholder="Jane Doe" class="w-full px-3 py-2 border border-stone-300 rounded-md text-sm">
+                                <input type="text" id="reg-cust-name" required placeholder="Jane Doe" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg text-sm">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-stone-600 mb-1">Phone Number (WhatsApp)</label>
-                                <input type="tel" id="reg-cust-phone" required placeholder="+1234567890" class="w-full px-3 py-2 border border-stone-300 rounded-md text-sm">
+                                <input type="tel" id="reg-cust-phone" required placeholder="+1234567890" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg text-sm">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-stone-600 mb-1">Email Address</label>
-                                <input type="email" id="reg-cust-email" required placeholder="jane@example.com" class="w-full px-3 py-2 border border-stone-300 rounded-md text-sm">
+                                <input type="email" id="reg-cust-email" required placeholder="jane@example.com" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg text-sm">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-stone-600 mb-1">Password</label>
-                                <input type="password" id="reg-cust-pass" required placeholder="••••••••" class="w-full px-3 py-2 border border-stone-300 rounded-md text-sm">
+                                <input type="password" id="reg-cust-pass" required placeholder="••••••••" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg text-sm">
                             </div>
-                            <button type="submit" class="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                                Create Customer Account
+                            <button type="submit" class="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-3 rounded-lg text-sm transition shadow-md">
+                                Register & Enter Shop
                             </button>
                         </form>
-                        <div class="text-center pt-3 border-t text-xs text-stone-500">
+                        <div class="text-center pt-4 border-t text-xs text-stone-500">
                             Already have an account? <button onclick="toggleCustomerRegister()" class="text-amber-700 font-bold hover:underline">Back to Login</button>
                         </div>
                     </div>
@@ -134,26 +144,26 @@
                                 <i data-lucide="shield-check" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-serif text-xl font-bold text-stone-900">Owner Access Portal</h3>
-                            <p class="text-xs text-stone-500 mt-1">Enter your master password to access financial records</p>
+                            <p class="text-xs text-stone-500 mt-1">Enter master password to access full admin control</p>
                         </div>
                         <form onsubmit="loginOwner(event)" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-semibold text-stone-600 mb-1">Owner Master Password</label>
-                                <input type="password" id="owner-pass-input" required placeholder="Enter password (default: owner123)" class="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <input type="password" id="owner-pass-input" required placeholder="Enter password (default: owner123)" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
                             </div>
-                            <button type="submit" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-2.5 rounded-lg text-sm transition flex items-center justify-center space-x-2">
+                            <button type="submit" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3 rounded-lg text-sm transition flex items-center justify-center space-x-2 shadow-md">
                                 <i data-lucide="key" class="w-4 h-4"></i>
-                                <span>Unlock Owner Dashboard</span>
+                                <span>Unlock Entire Website & Dashboard</span>
                             </button>
                         </form>
-                        <p class="text-xs text-center text-stone-400 mt-2">Default Password: <code class="bg-stone-100 px-1 py-0.5 rounded text-stone-700 font-bold">owner123</code></p>
+                        <p class="text-xs text-center text-stone-400 mt-2">Default Password: <code class="bg-stone-100 px-1.5 py-0.5 rounded text-stone-700 font-bold">owner123</code></p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ================= 2. STOREFRONT VIEW ================= -->
-        <section id="view-storefront">
+        <!-- ================= 2. STOREFRONT VIEW (Hidden by default) ================= -->
+        <section id="view-storefront" class="hidden">
             <!-- Hero Banner -->
             <div class="relative bg-stone-800 text-white rounded-2xl overflow-hidden mb-10 shadow-lg">
                 <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80');"></div>
@@ -421,140 +431,6 @@
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let uploadedImageString = "";
 
-        // Navigation Switcher
-        function switchTab(tab) {
-            document.getElementById('view-storefront').classList.add('hidden');
-            document.getElementById('view-custom-demand').classList.add('hidden');
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('view-login').classList.add('hidden');
-
-            document.getElementById('view-' + tab).classList.remove('hidden');
-
-            if (tab === 'dashboard') {
-                updateDashboard();
-            }
-        }
-
-        // Feature Protection Guard: Custom Design Demand
-        function handleCustomDemandAccess() {
-            if (currentUser) {
-                switchTab('custom-demand');
-            } else {
-                alert('Please log in or register a Customer account to submit a custom furniture design demand.');
-                switchTab('login');
-                switchAuthTab('customer-login');
-            }
-        }
-
-        // Feature Protection Guard: Owner Dashboard
-        function handleDashboardAccess() {
-            if (currentUser && currentUser.role === 'owner') {
-                switchTab('dashboard');
-            } else {
-                alert('Owner master password required to access dashboard.');
-                switchTab('login');
-                switchAuthTab('owner-login');
-            }
-        }
-
-        // Auth Tabs Toggle inside Login Page
-        function switchAuthTab(type) {
-            if (type === 'customer-login') {
-                document.getElementById('form-customer-login').classList.remove('hidden');
-                document.getElementById('form-customer-register').classList.add('hidden');
-                document.getElementById('form-owner-login').classList.add('hidden');
-
-                document.getElementById('tab-btn-customer').className = "flex-1 py-3 text-sm font-bold text-center text-amber-700 border-b-2 border-amber-600 bg-white";
-                document.getElementById('tab-btn-owner').className = "flex-1 py-3 text-sm font-bold text-center text-stone-500 hover:text-stone-800 bg-stone-100";
-            } else {
-                document.getElementById('form-customer-login').classList.add('hidden');
-                document.getElementById('form-customer-register').classList.add('hidden');
-                document.getElementById('form-owner-login').classList.remove('hidden');
-
-                document.getElementById('tab-btn-owner').className = "flex-1 py-3 text-sm font-bold text-center text-amber-700 border-b-2 border-amber-600 bg-white";
-                document.getElementById('tab-btn-customer').className = "flex-1 py-3 text-sm font-bold text-center text-stone-500 hover:text-stone-800 bg-stone-100";
-            }
-        }
-
-        function toggleCustomerRegister() {
-            document.getElementById('form-customer-login').classList.toggle('hidden');
-            document.getElementById('form-customer-register').classList.toggle('hidden');
-        }
-
-        // Authentication Handlers
-        function loginOwner(e) {
-            e.preventDefault();
-            const pass = document.getElementById('owner-pass-input').value;
-            if (pass === OWNER_PASSWORD) {
-                currentUser = { role: 'owner', name: 'Owner' };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                updateAuthUI();
-                switchTab('dashboard');
-            } else {
-                alert('Incorrect password! Default is owner123');
-            }
-        }
-
-        function registerCustomer(e) {
-            e.preventDefault();
-            const name = document.getElementById('reg-cust-name').value;
-            const phone = document.getElementById('reg-cust-phone').value;
-            const email = document.getElementById('reg-cust-email').value;
-            const pass = document.getElementById('reg-cust-pass').value;
-
-            customerUsers.push({ name, phone, email, pass });
-            localStorage.setItem('customerUsers', JSON.stringify(customerUsers));
-
-            currentUser = { role: 'customer', name, phone, email };
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateAuthUI();
-            alert('Account created! You can now demand custom designs.');
-            switchTab('custom-demand');
-        }
-
-        function loginCustomer(e) {
-            e.preventDefault();
-            const id = document.getElementById('cust-login-id').value;
-            const pass = document.getElementById('cust-login-pass').value;
-
-            const found = customerUsers.find(u => (u.email === id || u.phone === id) && u.pass === pass);
-            if (found) {
-                currentUser = { role: 'customer', name: found.name, phone: found.phone, email: found.email };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                updateAuthUI();
-                switchTab('custom-demand');
-            } else {
-                alert('Customer account not found or password incorrect.');
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            updateAuthUI();
-            switchTab('storefront');
-        }
-
-        function updateAuthUI() {
-            const btnNav = document.getElementById('btn-login-nav');
-            const userBadge = document.getElementById('user-badge');
-            const displayName = document.getElementById('user-display-name');
-
-            if (currentUser) {
-                btnNav.classList.add('hidden');
-                userBadge.classList.remove('hidden');
-                displayName.innerText = currentUser.role === 'owner' ? '👑 Owner' : `👤 ${currentUser.name}`;
-
-                if (currentUser.role === 'customer') {
-                    if (document.getElementById('demand-name')) document.getElementById('demand-name').value = currentUser.name;
-                    if (document.getElementById('demand-phone')) document.getElementById('demand-phone').value = currentUser.phone || '';
-                }
-            } else {
-                btnNav.classList.remove('hidden');
-                userBadge.classList.add('hidden');
-            }
-        }
-
         // Render Store Catalog
         function renderProducts(filter = 'all') {
             const container = document.getElementById('product-grid');
@@ -597,69 +473,13 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // Image Converters
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    uploadedImageString = evt.target.result;
-                    showPreview(uploadedImageString);
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function handleUrlInput(url) {
-            if (url) {
-                uploadedImageString = url;
-                showPreview(url);
-            }
-        }
-
-        function showPreview(src) {
-            const img = document.getElementById('image-preview');
-            if (img) {
-                img.src = src;
-                document.getElementById('image-preview-container').classList.remove('hidden');
-            }
-        }
-
-        // Handle Custom Design Form Submission
-        function submitCustomDemand(e) {
-            e.preventDefault();
-
-            if (!currentUser) {
-                alert('Please log in first to submit a design demand.');
-                switchTab('login');
-                return;
-            }
-
-            const newDemand = {
-                id: Date.now(),
-                name: document.getElementById('demand-name').value,
-                phone: document.getElementById('demand-phone').value,
-                dimensions: document.getElementById('demand-dimensions').value || 'Standard',
-                material: document.getElementById('demand-material').value,
-                budget: document.getElementById('demand-budget').value || 'Open',
-                notes: document.getElementById('demand-notes').value,
-                image: uploadedImageString || 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=300&q=80',
-                date: new Date().toLocaleDateString()
-            };
-
-            customDemands.push(newDemand);
-            localStorage.setItem('customDemands', JSON.stringify(customDemands));
-
-            alert('Your custom furniture design demand has been submitted! The owner will review it in the control panel.');
-            document.getElementById('custom-demand-form').reset();
-            document.getElementById('image-preview-container').classList.add('hidden');
-            uploadedImageString = "";
-
-            if (currentUser && currentUser.role === 'owner') {
-                switchTab('dashboard');
-            } else {
-                switchTab('storefront');
-            }
+        // Show Gateway Screen (Hides website content & main nav)
+        function showGatewayLogin() {
+            document.getElementById('main-nav').classList.add('hidden');
+            document.getElementById('view-storefront').classList.add('hidden');
+            document.getElementById('view-custom-demand').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-login').classList.remove('hidden');
         }
 
         // Update Dashboard Analytics
@@ -703,6 +523,215 @@
             }
         }
 
+        // Navigation Switcher (Strictly enforces login state)
+        function switchTab(tab) {
+            // Strict Gateway: If user is not logged in, force login view ONLY
+            if (!currentUser && tab !== 'login') {
+                showGatewayLogin();
+                return;
+            }
+
+            document.getElementById('view-storefront').classList.add('hidden');
+            document.getElementById('view-custom-demand').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-login').classList.add('hidden');
+
+            document.getElementById('view-' + tab).classList.remove('hidden');
+
+            if (tab === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        // Feature Protection Guard: Custom Design Demand
+        function handleCustomDemandAccess() {
+            if (currentUser) {
+                switchTab('custom-demand');
+            } else {
+                showGatewayLogin();
+            }
+        }
+
+        // Feature Protection Guard: Owner Dashboard
+        function handleDashboardAccess() {
+            if (currentUser && currentUser.role === 'owner') {
+                switchTab('dashboard');
+            } else {
+                alert('Owner master password required to access owner dashboard.');
+            }
+        }
+
+        // Auth Tabs Toggle inside Gateway Screen
+        function switchAuthTab(type) {
+            if (type === 'customer-login') {
+                document.getElementById('form-customer-login').classList.remove('hidden');
+                document.getElementById('form-customer-register').classList.add('hidden');
+                document.getElementById('form-owner-login').classList.add('hidden');
+
+                document.getElementById('tab-btn-customer').className = "flex-1 py-3.5 text-sm font-bold text-center text-amber-700 border-b-2 border-amber-600 bg-white transition";
+                document.getElementById('tab-btn-owner').className = "flex-1 py-3.5 text-sm font-bold text-center text-stone-500 hover:text-stone-800 bg-stone-100 transition";
+            } else {
+                document.getElementById('form-customer-login').classList.add('hidden');
+                document.getElementById('form-customer-register').classList.add('hidden');
+                document.getElementById('form-owner-login').classList.remove('hidden');
+
+                document.getElementById('tab-btn-owner').className = "flex-1 py-3.5 text-sm font-bold text-center text-amber-700 border-b-2 border-amber-600 bg-white transition";
+                document.getElementById('tab-btn-customer').className = "flex-1 py-3.5 text-sm font-bold text-center text-stone-500 hover:text-stone-800 bg-stone-100 transition";
+            }
+        }
+
+        function toggleCustomerRegister() {
+            document.getElementById('form-customer-login').classList.toggle('hidden');
+            document.getElementById('form-customer-register').classList.toggle('hidden');
+        }
+
+        // Authentication Handlers
+        function loginOwner(e) {
+            e.preventDefault();
+            const pass = document.getElementById('owner-pass-input').value;
+            if (pass === OWNER_PASSWORD) {
+                currentUser = { role: 'owner', name: 'Owner' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateAuthUI();
+                switchTab('dashboard');
+            } else {
+                alert('Incorrect password! Default is owner123');
+            }
+        }
+
+        function registerCustomer(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-cust-name').value;
+            const phone = document.getElementById('reg-cust-phone').value;
+            const email = document.getElementById('reg-cust-email').value;
+            const pass = document.getElementById('reg-cust-pass').value;
+
+            customerUsers.push({ name, phone, email, pass });
+            localStorage.setItem('customerUsers', JSON.stringify(customerUsers));
+
+            currentUser = { role: 'customer', name, phone, email };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateAuthUI();
+            alert('Welcome! You are now logged in.');
+            switchTab('storefront');
+        }
+
+        function loginCustomer(e) {
+            e.preventDefault();
+            const id = document.getElementById('cust-login-id').value;
+            const pass = document.getElementById('cust-login-pass').value;
+
+            const found = customerUsers.find(u => (u.email === id || u.phone === id) && u.pass === pass);
+            if (found) {
+                currentUser = { role: 'customer', name: found.name, phone: found.phone, email: found.email };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateAuthUI();
+                switchTab('storefront');
+            } else {
+                alert('Customer account not found or password incorrect. Please register first.');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateAuthUI();
+            showGatewayLogin();
+        }
+
+        function updateAuthUI() {
+            const mainNav = document.getElementById('main-nav');
+            const displayName = document.getElementById('user-display-name');
+            const ownerDashBtn = document.getElementById('nav-dashboard');
+
+            if (currentUser) {
+                // Unlock website navigation
+                mainNav.classList.remove('hidden');
+                displayName.innerText = currentUser.role === 'owner' ? '👑 Owner Admin' : `👤 ${currentUser.name}`;
+
+                // Show Owner Dashboard tab ONLY if logged in as Owner
+                if (currentUser.role === 'owner') {
+                    ownerDashBtn.classList.remove('hidden');
+                } else {
+                    ownerDashBtn.classList.add('hidden');
+                }
+
+                // Pre-fill customer profile details in demand form
+                if (currentUser.role === 'customer') {
+                    if (document.getElementById('demand-name')) document.getElementById('demand-name').value = currentUser.name;
+                    if (document.getElementById('demand-phone')) document.getElementById('demand-phone').value = currentUser.phone || '';
+                }
+            } else {
+                // Lock website navigation
+                showGatewayLogin();
+            }
+        }
+
+        // Image Converters
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    uploadedImageString = evt.target.result;
+                    showPreview(uploadedImageString);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleUrlInput(url) {
+            if (url) {
+                uploadedImageString = url;
+                showPreview(url);
+            }
+        }
+
+        function showPreview(src) {
+            const img = document.getElementById('image-preview');
+            if (img) {
+                img.src = src;
+                document.getElementById('image-preview-container').classList.remove('hidden');
+            }
+        }
+
+        // Handle Custom Design Form Submission
+        function submitCustomDemand(e) {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert('Please log in first to submit a design demand.');
+                showGatewayLogin();
+                return;
+            }
+
+            const newDemand = {
+                id: Date.now(),
+                name: document.getElementById('demand-name').value,
+                phone: document.getElementById('demand-phone').value,
+                dimensions: document.getElementById('demand-dimensions').value || 'Standard',
+                material: document.getElementById('demand-material').value,
+                budget: document.getElementById('demand-budget').value || 'Open',
+                notes: document.getElementById('demand-notes').value,
+                image: uploadedImageString || 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=300&q=80',
+                date: new Date().toLocaleDateString()
+            };
+
+            customDemands.push(newDemand);
+            localStorage.setItem('customDemands', JSON.stringify(customDemands));
+
+            alert('Your custom furniture design demand has been submitted! The owner will review it in the control panel.');
+            document.getElementById('custom-demand-form').reset();
+            document.getElementById('image-preview-container').classList.add('hidden');
+            uploadedImageString = "";
+
+            if (currentUser && currentUser.role === 'owner') {
+                switchTab('dashboard');
+            } else {
+                switchTab('storefront');
+            }
+        }
+
         // Financial Logging
         function logSale(e) {
             e.preventDefault();
@@ -742,7 +771,12 @@
 
         window.onload = function() {
             renderProducts();
-            updateAuthUI();
+            if (currentUser) {
+                updateAuthUI();
+                switchTab(currentUser.role === 'owner' ? 'dashboard' : 'storefront');
+            } else {
+                showGatewayLogin();
+            }
             if (window.lucide) lucide.createIcons();
         };
     </script>
