@@ -185,8 +185,11 @@
                 <h2 class="font-serif text-2xl font-bold text-stone-900">Available Collections</h2>
                 <div class="flex flex-wrap gap-2">
                     <button onclick="filterProducts('all')" class="filter-btn active-filter px-4 py-1.5 rounded-full text-sm font-medium bg-stone-900 text-white shadow-sm">All Items</button>
-                    <button onclick="filterProducts('instock')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Feature 1: In-Stock</button>
-                    <button onclick="filterProducts('preorder')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Feature 2: Pre-Orders</button>
+                    <button onclick="filterProducts('instock')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">In-Stock</button>
+                    <button onclick="filterProducts('preorder')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Pre-Orders</button>
+                    <button onclick="filterProducts('living')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Living Room</button>
+                    <button onclick="filterProducts('bedroom')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Bedroom</button>
+                    <button onclick="filterProducts('dining')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Dining Room</button>
                 </div>
             </div>
 
@@ -279,11 +282,11 @@
         <section id="view-dashboard" class="hidden space-y-8">
             <div class="bg-amber-900 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
                 <div>
-                    <h2 class="font-serif text-2xl sm:text-3xl font-bold">Owner Control Panel</h2>
-                    <p class="text-amber-200 text-sm mt-1">Manage Sales, Expenses, Pre-Orders & Customer Design Demands</p>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold">Owner Management Panel</h2>
+                    <p class="text-amber-200 text-sm mt-1">Upload Products to Shop, Track Sales, Expenses & Custom Demands</p>
                 </div>
                 <div class="text-right">
-                    <span class="text-xs bg-emerald-800 text-emerald-200 px-3 py-1 rounded-full uppercase tracking-wider">Authenticated Owner</span>
+                    <span class="text-xs bg-emerald-800 text-emerald-200 px-3 py-1 rounded-full uppercase tracking-wider font-semibold">👑 Admin Mode</span>
                 </div>
             </div>
 
@@ -302,9 +305,76 @@
                     <div id="stat-profit" class="text-2xl font-bold text-emerald-600 mt-1">$0.00</div>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-                    <span class="text-xs font-semibold text-stone-500 uppercase">Active Custom Demands</span>
-                    <div id="stat-preorders" class="text-2xl font-bold text-amber-600 mt-1">0</div>
+                    <span class="text-xs font-semibold text-stone-500 uppercase">Total Listed Products</span>
+                    <div id="stat-products" class="text-2xl font-bold text-amber-600 mt-1">0</div>
                 </div>
+            </div>
+
+            <!-- OWNER FEATURE: UPLOAD NEW PRODUCT TO CUSTOMER STORE -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-md">
+                <div class="flex items-center space-x-3 mb-6 pb-4 border-b border-stone-200">
+                    <div class="p-2.5 bg-amber-100 text-amber-800 rounded-lg">
+                        <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-stone-900">Upload & Publish Product to Shop</h3>
+                        <p class="text-xs text-stone-500">Products uploaded here will immediately appear on the Customer Catalog page.</p>
+                    </div>
+                </div>
+
+                <form onsubmit="addNewProduct(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Product Name *</label>
+                            <input type="text" id="new-prod-name" required placeholder="e.g. Modern Teak Armchair" class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Price ($) *</label>
+                            <input type="number" id="new-prod-price" required placeholder="450" class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Usage / Category *</label>
+                            <select id="new-prod-category" required class="w-full px-3 py-2 border rounded-md text-sm">
+                                <option value="living">Living Room</option>
+                                <option value="bedroom">Bedroom</option>
+                                <option value="dining">Dining Room</option>
+                                <option value="outdoor">Outdoor / Patio</option>
+                                <option value="decor">Decor & Accessories</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Availability Type *</label>
+                            <select id="new-prod-type" required class="w-full px-3 py-2 border rounded-md text-sm">
+                                <option value="instock">In-Stock (Ready to Ship)</option>
+                                <option value="preorder">Pre-Order (Made to Order)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Material / Wood Specs</label>
+                            <input type="text" id="new-prod-wood" placeholder="e.g. Grade-A Teak Wood" class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Dimensions</label>
+                            <input type="text" id="new-prod-dimensions" placeholder="e.g. 34&quot;L x 30&quot;W x 32&quot;H" class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">Product Photo Upload or Image URL *</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="file" id="new-prod-file" accept="image/*" onchange="handleNewProductImage(event)" class="text-xs text-stone-500 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700">
+                            <input type="url" id="new-prod-url" placeholder="Or paste image URL (https://...)" class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3 rounded-lg text-sm transition flex items-center justify-center space-x-2 shadow-md">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        <span>Publish Product to Storefront</span>
+                    </button>
+                </form>
             </div>
 
             <!-- Custom Demands Table (Feature 3 Records) -->
@@ -312,7 +382,7 @@
                 <div class="p-5 bg-stone-100 border-b border-stone-200 flex items-center justify-between">
                     <h3 class="font-serif text-lg font-bold text-stone-900 flex items-center space-x-2">
                         <i data-lucide="image" class="w-5 h-5 text-amber-600"></i>
-                        <span>Customer Custom Design Demands (Uploaded Photos)</span>
+                        <span>Customer Custom Design Requests</span>
                     </h3>
                 </div>
                 <div class="overflow-x-auto">
@@ -382,14 +452,14 @@
         const OWNER_PHONE = "1234567890";
         const OWNER_PASSWORD = "owner123";
 
-        // Initial Sample Products Catalog
-        const initialProducts = [
+        // Dynamic Product Storage (Owner uploaded items persist here)
+        let productCatalog = JSON.parse(localStorage.getItem('productCatalog')) || [
             {
                 id: 1,
                 name: "Nordic Minimalist Oak Sofa",
-                category: "instock",
+                category: "living",
+                type: "instock",
                 price: 850,
-                type: "In-Stock",
                 image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80",
                 dimensions: "80\"L x 34\"W x 32\"H",
                 wood: "Solid Oak Wood"
@@ -397,9 +467,9 @@
             {
                 id: 2,
                 name: "Handcrafted Teak Dining Table Set",
-                category: "preorder",
+                category: "dining",
+                type: "preorder",
                 price: 1200,
-                type: "Pre-Order",
                 leadTime: "Ships in 2-3 Weeks",
                 image: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=600&q=80",
                 dimensions: "72\"L x 36\"W x 30\"H",
@@ -408,14 +478,16 @@
             {
                 id: 3,
                 name: "Royal Sheesham King Bed",
-                category: "instock",
+                category: "bedroom",
+                type: "instock",
                 price: 1100,
-                type: "In-Stock",
                 image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80",
                 dimensions: "78\"L x 72\"W x 48\"H",
                 wood: "Rosewood / Sheesham"
             }
         ];
+
+        let newProdImageBase64 = "";
 
         // Storage Management
         let customDemands = JSON.parse(localStorage.getItem('customDemands')) || [];
@@ -437,10 +509,19 @@
             if (!container) return;
             container.innerHTML = "";
 
-            const filtered = initialProducts.filter(p => filter === 'all' || p.category === filter);
+            const filtered = productCatalog.filter(p => {
+                if (filter === 'all') return true;
+                if (filter === 'instock' || filter === 'preorder') return p.type === filter;
+                return p.category === filter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-3 text-center py-10 text-stone-500">No products found in this category.</div>`;
+                return;
+            }
 
             filtered.forEach(p => {
-                const isPreOrder = p.category === 'preorder';
+                const isPreOrder = p.type === 'preorder';
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-md transition flex flex-col justify-between";
                 
@@ -451,14 +532,14 @@
                         <div class="relative h-48 bg-stone-200">
                             <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
                             <span class="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${isPreOrder ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'}">
-                                ${p.type}
+                                ${isPreOrder ? 'Pre-Order' : 'In-Stock'}
                             </span>
                         </div>
                         <div class="p-5">
                             <h3 class="font-serif text-lg font-bold text-stone-900">${p.name}</h3>
-                            <p class="text-xs text-stone-500 mt-1">${p.wood} • ${p.dimensions}</p>
-                            ${isPreOrder ? `<p class="text-xs text-amber-700 font-semibold mt-1">⏳ ${p.leadTime}</p>` : ''}
-                            <div class="text-xl font-bold text-stone-900 mt-3">$${p.price}</div>
+                            <p class="text-xs text-stone-500 mt-1">${p.wood || 'Solid Wood'} • ${p.dimensions || 'Custom Size'}</p>
+                            <span class="inline-block bg-stone-100 text-stone-700 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mt-2">${p.category || 'furniture'}</span>
+                            <div class="text-xl font-bold text-stone-900 mt-2">$${p.price}</div>
                         </div>
                     </div>
                     <div class="px-5 pb-5">
@@ -471,6 +552,52 @@
                 container.appendChild(card);
             });
             if (window.lucide) lucide.createIcons();
+        }
+
+        // Owner Action: Publish New Product
+        function handleNewProductImage(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    newProdImageBase64 = evt.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addNewProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-prod-name').value;
+            const price = document.getElementById('new-prod-price').value;
+            const category = document.getElementById('new-prod-category').value;
+            const type = document.getElementById('new-prod-type').value;
+            const wood = document.getElementById('new-prod-wood').value;
+            const dimensions = document.getElementById('new-prod-dimensions').value;
+            const urlInput = document.getElementById('new-prod-url').value;
+
+            const finalImage = newProdImageBase64 || urlInput || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';
+
+            const newProduct = {
+                id: Date.now(),
+                name,
+                price: Number(price),
+                category,
+                type,
+                wood,
+                dimensions,
+                image: finalImage
+            };
+
+            productCatalog.unshift(newProduct);
+            localStorage.setItem('productCatalog', JSON.stringify(productCatalog));
+
+            alert('Product published successfully! It is now live in the Customer Storefront.');
+            e.target.reset();
+            newProdImageBase64 = "";
+
+            renderProducts();
+            updateDashboard();
         }
 
         // Show Gateway Screen (Hides website content & main nav)
@@ -491,12 +618,12 @@
             const salesElem = document.getElementById('stat-sales');
             const expensesElem = document.getElementById('stat-expenses');
             const profitElem = document.getElementById('stat-profit');
-            const preordersElem = document.getElementById('stat-preorders');
+            const prodsElem = document.getElementById('stat-products');
 
             if (salesElem) salesElem.innerText = `$${totalSales.toFixed(2)}`;
             if (expensesElem) expensesElem.innerText = `$${totalExpenses.toFixed(2)}`;
             if (profitElem) profitElem.innerText = `$${netProfit.toFixed(2)}`;
-            if (preordersElem) preordersElem.innerText = customDemands.length;
+            if (prodsElem) prodsElem.innerText = productCatalog.length;
 
             const tbody = document.getElementById('table-custom-demands');
             if (!tbody) return;
