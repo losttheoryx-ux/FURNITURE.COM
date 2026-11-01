@@ -26,9 +26,11 @@
                     <button onclick="switchTab('storefront')" id="nav-storefront" class="px-3 py-2 rounded-md text-sm font-medium bg-amber-600 text-white transition">
                         Shop & Catalog
                     </button>
-                    <button onclick="switchTab('custom-demand')" id="nav-custom-demand" class="px-3 py-2 rounded-md text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-800 transition">
+                    <!-- Guarded: Requires Customer Login -->
+                    <button onclick="handleCustomDemandAccess()" id="nav-custom-demand" class="px-3 py-2 rounded-md text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-800 transition">
                         Demand Custom Design
                     </button>
+                    <!-- Guarded: Requires Owner Password -->
                     <button onclick="handleDashboardAccess()" id="nav-dashboard" class="px-3 py-2 rounded-md text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-800 transition flex items-center space-x-1">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                         <span>Owner Dashboard</span>
@@ -73,7 +75,7 @@
                     <div id="form-customer-login" class="space-y-4">
                         <div class="text-center mb-4">
                             <h3 class="font-serif text-xl font-bold text-stone-900">Customer Access</h3>
-                            <p class="text-xs text-stone-500 mt-1">Log in to track your custom furniture demands & orders</p>
+                            <p class="text-xs text-stone-500 mt-1">Please log in to submit custom furniture design demands</p>
                         </div>
                         <form onsubmit="loginCustomer(event)" class="space-y-3">
                             <div>
@@ -93,11 +95,11 @@
                         </div>
                     </div>
 
-                    <!-- Customer Register Form (Hidden by Default) -->
+                    <!-- Customer Register Form -->
                     <div id="form-customer-register" class="hidden space-y-4">
                         <div class="text-center mb-4">
                             <h3 class="font-serif text-xl font-bold text-stone-900">Create Customer Account</h3>
-                            <p class="text-xs text-stone-500 mt-1">Join to submit custom demands and save quotes</p>
+                            <p class="text-xs text-stone-500 mt-1">Join to submit custom demands and track your orders</p>
                         </div>
                         <form onsubmit="registerCustomer(event)" class="space-y-3">
                             <div>
@@ -132,7 +134,7 @@
                                 <i data-lucide="shield-check" class="w-6 h-6"></i>
                             </div>
                             <h3 class="font-serif text-xl font-bold text-stone-900">Owner Access Portal</h3>
-                            <p class="text-xs text-stone-500 mt-1">Enter your password to manage finances & customer demands</p>
+                            <p class="text-xs text-stone-500 mt-1">Enter your master password to access financial records</p>
                         </div>
                         <form onsubmit="loginOwner(event)" class="space-y-4">
                             <div>
@@ -160,7 +162,7 @@
                     <h1 class="font-serif text-3xl sm:text-5xl font-bold mt-4 mb-4">Handcrafted Furniture Made For Your Home</h1>
                     <p class="text-stone-300 mb-6">Browse ready furniture, place pre-orders on upcoming collections, or upload your own furniture photo for custom fabrication.</p>
                     <div class="flex flex-wrap gap-4">
-                        <button onclick="switchTab('custom-demand')" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg flex items-center space-x-2 transition shadow">
+                        <button onclick="handleCustomDemandAccess()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg flex items-center space-x-2 transition shadow">
                             <i data-lucide="upload-cloud" class="w-5 h-5"></i>
                             <span>Upload Furniture Photo</span>
                         </button>
@@ -184,7 +186,7 @@
             </div>
         </section>
 
-        <!-- ================= 3. FEATURE 3: CUSTOM DESIGN DEMAND VIEW ================= -->
+        <!-- ================= 3. FEATURE 3: CUSTOM DESIGN DEMAND VIEW (PROTECTED) ================= -->
         <section id="view-custom-demand" class="hidden">
             <div class="max-w-3xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-md border border-stone-200">
                 <div class="text-center mb-8">
@@ -214,7 +216,7 @@
                         </div>
                     </div>
 
-                    <!-- Customer Contact Details -->
+                    <!-- Customer Contact Details (Auto-filled from Login Session) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-stone-700 mb-1">Your Full Name *</label>
@@ -263,7 +265,7 @@
             </div>
         </section>
 
-        <!-- ================= 4. OWNER ADMIN DASHBOARD VIEW ================= -->
+        <!-- ================= 4. OWNER ADMIN DASHBOARD VIEW (PROTECTED) ================= -->
         <section id="view-dashboard" class="hidden space-y-8">
             <div class="bg-amber-900 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
                 <div>
@@ -290,7 +292,7 @@
                     <div id="stat-profit" class="text-2xl font-bold text-emerald-600 mt-1">$0.00</div>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-                    <span class="text-xs font-semibold text-stone-500 uppercase">Active Pre-Orders / Demands</span>
+                    <span class="text-xs font-semibold text-stone-500 uppercase">Active Custom Demands</span>
                     <div id="stat-preorders" class="text-2xl font-bold text-amber-600 mt-1">0</div>
                 </div>
             </div>
@@ -366,11 +368,11 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Owner WhatsApp Configuration Number
+        // Owner Configuration Settings
         const OWNER_PHONE = "1234567890";
-        const OWNER_PASSWORD = "owner123"; // Default Master Password
+        const OWNER_PASSWORD = "owner123";
 
-        // Sample Products Catalog
+        // Initial Sample Products Catalog
         const initialProducts = [
             {
                 id: 1,
@@ -405,7 +407,7 @@
             }
         ];
 
-        // Persistent Data Structures (LocalStorage)
+        // Storage Management
         let customDemands = JSON.parse(localStorage.getItem('customDemands')) || [];
         let salesLogs = JSON.parse(localStorage.getItem('salesLogs')) || [
             { id: 1, item: "Nordic Oak Sofa", customer: "Alice Smith", amount: 850 }
@@ -415,8 +417,8 @@
         ];
         let customerUsers = JSON.parse(localStorage.getItem('customerUsers')) || [];
 
-        // Active Session Tracking
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null; // { role: 'owner'|'customer', name: '' }
+        // Active User Session Tracking
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let uploadedImageString = "";
 
         // Navigation Switcher
@@ -433,24 +435,35 @@
             }
         }
 
-        // Dashboard Access Guard
+        // Feature Protection Guard: Custom Design Demand
+        function handleCustomDemandAccess() {
+            if (currentUser) {
+                switchTab('custom-demand');
+            } else {
+                alert('Please log in or register a Customer account to submit a custom furniture design demand.');
+                switchTab('login');
+                switchAuthTab('customer-login');
+            }
+        }
+
+        // Feature Protection Guard: Owner Dashboard
         function handleDashboardAccess() {
             if (currentUser && currentUser.role === 'owner') {
                 switchTab('dashboard');
             } else {
-                alert('Owner access required. Please log in with the Owner password.');
+                alert('Owner master password required to access dashboard.');
                 switchTab('login');
                 switchAuthTab('owner-login');
             }
         }
 
-        // Auth Tabs Switcher inside Login Screen
+        // Auth Tabs Toggle inside Login Page
         function switchAuthTab(type) {
             if (type === 'customer-login') {
                 document.getElementById('form-customer-login').classList.remove('hidden');
                 document.getElementById('form-customer-register').classList.add('hidden');
                 document.getElementById('form-owner-login').classList.add('hidden');
-                
+
                 document.getElementById('tab-btn-customer').className = "flex-1 py-3 text-sm font-bold text-center text-amber-700 border-b-2 border-amber-600 bg-white";
                 document.getElementById('tab-btn-owner').className = "flex-1 py-3 text-sm font-bold text-center text-stone-500 hover:text-stone-800 bg-stone-100";
             } else {
@@ -468,7 +481,7 @@
             document.getElementById('form-customer-register').classList.toggle('hidden');
         }
 
-        // Owner Login Logic
+        // Authentication Handlers
         function loginOwner(e) {
             e.preventDefault();
             const pass = document.getElementById('owner-pass-input').value;
@@ -478,11 +491,10 @@
                 updateAuthUI();
                 switchTab('dashboard');
             } else {
-                alert('Incorrect password! Try: owner123');
+                alert('Incorrect password! Default is owner123');
             }
         }
 
-        // Customer Register Logic
         function registerCustomer(e) {
             e.preventDefault();
             const name = document.getElementById('reg-cust-name').value;
@@ -496,11 +508,10 @@
             currentUser = { role: 'customer', name, phone, email };
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateAuthUI();
-            alert('Account created successfully!');
-            switchTab('storefront');
+            alert('Account created! You can now demand custom designs.');
+            switchTab('custom-demand');
         }
 
-        // Customer Login Logic
         function loginCustomer(e) {
             e.preventDefault();
             const id = document.getElementById('cust-login-id').value;
@@ -511,13 +522,12 @@
                 currentUser = { role: 'customer', name: found.name, phone: found.phone, email: found.email };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateAuthUI();
-                switchTab('storefront');
+                switchTab('custom-demand');
             } else {
-                alert('Customer not found or invalid credentials. You can register a new account!');
+                alert('Customer account not found or password incorrect.');
             }
         }
 
-        // Logout Function
         function logout() {
             currentUser = null;
             localStorage.removeItem('currentUser');
@@ -525,7 +535,6 @@
             switchTab('storefront');
         }
 
-        // Update Auth UI Badge
         function updateAuthUI() {
             const btnNav = document.getElementById('btn-login-nav');
             const userBadge = document.getElementById('user-badge');
@@ -536,7 +545,6 @@
                 userBadge.classList.remove('hidden');
                 displayName.innerText = currentUser.role === 'owner' ? '👑 Owner' : `👤 ${currentUser.name}`;
 
-                // Auto-fill customer details in demand form if logged in
                 if (currentUser.role === 'customer') {
                     if (document.getElementById('demand-name')) document.getElementById('demand-name').value = currentUser.name;
                     if (document.getElementById('demand-phone')) document.getElementById('demand-phone').value = currentUser.phone || '';
@@ -547,7 +555,7 @@
             }
         }
 
-        // Render Product Cards
+        // Render Store Catalog
         function renderProducts(filter = 'all') {
             const container = document.getElementById('product-grid');
             if (!container) return;
@@ -589,7 +597,7 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // Image Handling Logic
+        // Image Converters
         function handleImageUpload(e) {
             const file = e.target.files[0];
             if (file) {
@@ -617,9 +625,15 @@
             }
         }
 
-        // Custom Demand Submission
+        // Handle Custom Design Form Submission
         function submitCustomDemand(e) {
             e.preventDefault();
+
+            if (!currentUser) {
+                alert('Please log in first to submit a design demand.');
+                switchTab('login');
+                return;
+            }
 
             const newDemand = {
                 id: Date.now(),
@@ -636,7 +650,7 @@
             customDemands.push(newDemand);
             localStorage.setItem('customDemands', JSON.stringify(customDemands));
 
-            alert('Your custom furniture design demand has been submitted! The owner will review it in the dashboard.');
+            alert('Your custom furniture design demand has been submitted! The owner will review it in the control panel.');
             document.getElementById('custom-demand-form').reset();
             document.getElementById('image-preview-container').classList.add('hidden');
             uploadedImageString = "";
@@ -648,7 +662,7 @@
             }
         }
 
-        // Dashboard Stat Calculations
+        // Update Dashboard Analytics
         function updateDashboard() {
             const totalSales = salesLogs.reduce((sum, s) => sum + Number(s.amount), 0);
             const totalExpenses = expenseLogs.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -664,7 +678,6 @@
             if (profitElem) profitElem.innerText = `$${netProfit.toFixed(2)}`;
             if (preordersElem) preordersElem.innerText = customDemands.length;
 
-            // Render Custom Demands Table
             const tbody = document.getElementById('table-custom-demands');
             if (!tbody) return;
             tbody.innerHTML = "";
@@ -690,7 +703,7 @@
             }
         }
 
-        // Log Sale Action
+        // Financial Logging
         function logSale(e) {
             e.preventDefault();
             const item = document.getElementById('sale-item').value;
@@ -703,7 +716,6 @@
             e.target.reset();
         }
 
-        // Log Expense Action
         function logExpense(e) {
             e.preventDefault();
             const item = document.getElementById('expense-item').value;
@@ -716,7 +728,6 @@
             e.target.reset();
         }
 
-        // Filter Pills Handler
         function filterProducts(type) {
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('bg-stone-900', 'text-white');
@@ -729,7 +740,6 @@
             renderProducts(type);
         }
 
-        // Initialize Application
         window.onload = function() {
             renderProducts();
             updateAuthUI();
