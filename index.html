@@ -593,6 +593,7 @@
                 currentUser = { role: 'owner', name: 'Owner' };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateAuthUI();
+                // Direct Owner straight to the Owner Admin Dashboard
                 switchTab('dashboard');
             } else {
                 alert('Incorrect password! Default is owner123');
@@ -613,6 +614,7 @@
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateAuthUI();
             alert('Welcome! You are now logged in.');
+            // Direct Customer straight to the Shop & Catalog
             switchTab('storefront');
         }
 
@@ -626,6 +628,7 @@
                 currentUser = { role: 'customer', name: found.name, phone: found.phone, email: found.email };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateAuthUI();
+                // Direct Customer straight to the Shop & Catalog
                 switchTab('storefront');
             } else {
                 alert('Customer account not found or password incorrect. Please register first.');
@@ -643,26 +646,27 @@
             const mainNav = document.getElementById('main-nav');
             const displayName = document.getElementById('user-display-name');
             const ownerDashBtn = document.getElementById('nav-dashboard');
+            const customDemandBtn = document.getElementById('nav-custom-demand');
 
             if (currentUser) {
-                // Unlock website navigation
+                // Unlock website navigation bar
                 mainNav.classList.remove('hidden');
-                displayName.innerText = currentUser.role === 'owner' ? '👑 Owner Admin' : `👤 ${currentUser.name}`;
 
-                // Show Owner Dashboard tab ONLY if logged in as Owner
                 if (currentUser.role === 'owner') {
-                    ownerDashBtn.classList.remove('hidden');
+                    displayName.innerText = '👑 Owner Admin';
+                    ownerDashBtn.classList.remove('hidden'); // Show Admin Control Panel button for Owner
                 } else {
-                    ownerDashBtn.classList.add('hidden');
+                    displayName.innerText = `👤 ${currentUser.name}`;
+                    ownerDashBtn.classList.add('hidden'); // Hide Admin Control Panel button for Customers
                 }
 
-                // Pre-fill customer profile details in demand form
+                // Pre-fill customer details in custom demand form if available
                 if (currentUser.role === 'customer') {
                     if (document.getElementById('demand-name')) document.getElementById('demand-name').value = currentUser.name;
                     if (document.getElementById('demand-phone')) document.getElementById('demand-phone').value = currentUser.phone || '';
                 }
             } else {
-                // Lock website navigation
+                // Lock navigation if unauthenticated
                 showGatewayLogin();
             }
         }
