@@ -1,0 +1,21 @@
+<style>
+    /* Custom Styling for Your Furniture Shop */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #fcfbf9; /* Soft luxury warm background */
+    }
+
+    /* Custom smooth hover effects for product cards */
+    .border {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .border:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Custom styling for buttons */
+    button {
+        cursor: pointer;
+    }
+</style>
