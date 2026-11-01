@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crafted Living | Custom Furniture & Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased">
+
+    <!-- TOP NAVIGATION -->
+    <nav class="sticky top-0 z-50 bg-stone-900 text-stone-100 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="armchair" class="w-8 h-8 text-amber-500"></i>
+                    <span class="font-serif text-xl font-bold tracking-wide">CRAFTED LIVING</span>
+                </div>
+                <!-- Navigation Tabs -->
+                <div class="flex space-x-1 sm:space-x-4">
+                    <button onclick="switchTab('storefront')" id="nav-storefront" class="px-3 py-2 rounded-md text-sm font-medium bg-amber-600 text-white transition">
+                        Shop & Catalog
+                    </button>
+                    <button onclick="switchTab('custom-demand')" id="nav-custom-demand" class="px-3 py-2 rounded-md text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-800 transition">
+                        Demand Custom Design
+                    </button>
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 py-2 rounded-md text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-800 transition flex items-center space-x-1">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        <span>Owner Dashboard</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= STOREFRONT VIEW ================= -->
+        <section id="view-storefront" class="space-block">
+            <!-- Hero Banner -->
+            <div class="relative bg-stone-800 text-white rounded-2xl overflow-hidden mb-10 shadow-lg">
+                <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80');"></div>
+                <div class="relative z-10 p-8 sm:p-12 max-w-2xl">
+                    <span class="bg-amber-600 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">Custom & In-Stock Workshop</span>
+                    <h1 class="font-serif text-3xl sm:text-5xl font-bold mt-4 mb-4">Handcrafted Furniture Made For Your Home</h1>
+                    <p class="text-stone-300 mb-6">Browse ready furniture, place pre-orders on upcoming collections, or upload your own furniture photo for custom fabrication.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="switchTab('custom-demand')" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg flex items-center space-x-2 transition shadow">
+                            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                            <span>Upload Furniture Photo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+                <h2 class="font-serif text-2xl font-bold text-stone-900">Available Collections</h2>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterProducts('all')" class="filter-btn active-filter px-4 py-1.5 rounded-full text-sm font-medium bg-stone-900 text-white shadow-sm">All Items</button>
+                    <button onclick="filterProducts('instock')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Feature 1: In-Stock</button>
+                    <button onclick="filterProducts('preorder')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">Feature 2: Pre-Orders</button>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Javascript will populate products here -->
+            </div>
+        </section>
+
+        <!-- ================= FEATURE 3: CUSTOM DESIGN DEMAND VIEW ================= -->
+        <section id="view-custom-demand" class="hidden">
+            <div class="max-w-3xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-md border border-stone-200">
+                <div class="text-center mb-8">
+                    <div class="inline-flex p-3 bg-amber-100 text-amber-700 rounded-full mb-3">
+                        <i data-lucide="palette" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="font-serif text-3xl font-bold text-stone-900">Demand Your Own Furniture Design</h2>
+                    <p class="text-stone-600 mt-2">Have a furniture photo from Pinterest, Instagram, or a sketch? Upload it here and send us your requirements. We will build it for you!</p>
+                </div>
+
+                <form id="custom-demand-form" onsubmit="submitCustomDemand(event)" class="space-y-6">
+                    <!-- Photo Upload / URL Input -->
+                    <div>
+                        <label class="block text-sm font-semibold text-stone-700 mb-2">Upload Reference Image or Paste Image URL</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <input type="file" id="demand-image-file" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                            </div>
+                            <div>
+                                <input type="url" id="demand-image-url" onchange="handleUrlInput(this.value)" placeholder="Or paste image URL (https://...)" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                        </div>
+                        <!-- Image Preview -->
+                        <div id="image-preview-container" class="mt-4 hidden text-center">
+                            <p class="text-xs font-semibold text-stone-500 mb-2">Design Preview:</p>
+                            <img id="image-preview" src="" alt="Preview" class="h-48 mx-auto rounded-lg object-cover border border-stone-300 shadow-sm">
+                        </div>
+                    </div>
+
+                    <!-- Customer Contact Details -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700 mb-1">Your Full Name *</label>
+                            <input type="text" id="demand-name" required placeholder="John Doe" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700 mb-1">WhatsApp Phone Number *</label>
+                            <input type="tel" id="demand-phone" required placeholder="+1234567890" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- Dimensions & Specifications -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700 mb-1">Length / Width</label>
+                            <input type="text" id="demand-dimensions" placeholder="e.g. 6ft x 3ft" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700 mb-1">Preferred Wood / Material</label>
+                            <select id="demand-material" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <option value="Teak Wood">Teak Wood</option>
+                                <option value="Oak Wood">Oak Wood</option>
+                                <option value="Sheesham / Rosewood">Sheesham / Rosewood</option>
+                                <option value="Plywood + Veneer">Plywood + Veneer</option>
+                                <option value="Metal & Wood Hybrid">Metal & Wood Hybrid</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700 mb-1">Target Budget</label>
+                            <input type="text" id="demand-budget" placeholder="e.g. $500 - $800" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div>
+                        <label class="block text-sm font-semibold text-stone-700 mb-1">Additional Design Requirements / Notes</label>
+                        <textarea id="demand-notes" rows="3" placeholder="Specify polish color, fabric type, or custom modifications..." class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center space-x-2 shadow-md">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                        <span>Submit Custom Design Demand</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= OWNER ADMIN DASHBOARD VIEW ================= -->
+        <section id="view-dashboard" class="hidden space-y-8">
+            <div class="bg-amber-900 text-white p-6 rounded-2xl shadow-md flex items-center justify-between">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold">Owner Control Panel</h2>
+                    <p class="text-amber-200 text-sm mt-1">Manage Sales, Expenses, Pre-Orders & Custom Customer Demands</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs bg-amber-800 text-amber-200 px-3 py-1 rounded-full uppercase tracking-wider">Storage Status: Active</span>
+                </div>
+            </div>
+
+            <!-- Financial Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+                    <span class="text-xs font-semibold text-stone-500 uppercase">Total Sales Revenue</span>
+                    <div id="stat-sales" class="text-2xl font-bold text-stone-900 mt-1">$0.00</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+                    <span class="text-xs font-semibold text-stone-500 uppercase">Buying & Wood Expenses</span>
+                    <div id="stat-expenses" class="text-2xl font-bold text-red-600 mt-1">$0.00</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+                    <span class="text-xs font-semibold text-stone-500 uppercase">Calculated Net Profit</span>
+                    <div id="stat-profit" class="text-2xl font-bold text-emerald-600 mt-1">$0.00</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+                    <span class="text-xs font-semibold text-stone-500 uppercase">Active Pre-Orders</span>
+                    <div id="stat-preorders" class="text-2xl font-bold text-amber-600 mt-1">0</div>
+                </div>
+            </div>
+
+            <!-- Custom Demands Table (Feature 3 Records) -->
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                <div class="p-5 bg-stone-100 border-b border-stone-200 flex items-center justify-between">
+                    <h3 class="font-serif text-lg font-bold text-stone-900 flex items-center space-x-2">
+                        <i data-lucide="image" class="w-5 h-5 text-amber-600"></i>
+                        <span>Customer Custom Design Demands (Uploaded Photos)</span>
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-stone-600">
+                        <thead class="bg-stone-50 text-stone-700 uppercase text-xs">
+                            <tr>
+                                <th class="px-4 py-3">Photo</th>
+                                <th class="px-4 py-3">Customer</th>
+                                <th class="px-4 py-3">Phone</th>
+                                <th class="px-4 py-3">Specs / Wood</th>
+                                <th class="px-4 py-3">Budget</th>
+                                <th class="px-4 py-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-custom-demands">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Log Forms (Sales & Expenses) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Log Sale Form -->
+                <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
+                    <h3 class="font-serif text-lg font-bold text-stone-900 mb-4 flex items-center space-x-2">
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i>
+                        <span>Log Completed Sale</span>
+                    </h3>
+                    <form onsubmit="logSale(event)" class="space-y-4">
+                        <div>
+                            <input type="text" id="sale-item" placeholder="Furniture Item Sold" required class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="sale-customer" placeholder="Customer Name" required class="w-full px-3 py-2 border rounded-md text-sm">
+                            <input type="number" id="sale-amount" placeholder="Sale Amount ($)" required class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-md text-sm transition">Add Sales Entry</button>
+                    </form>
+                </div>
+
+                <!-- Log Expense Form -->
+                <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
+                    <h3 class="font-serif text-lg font-bold text-stone-900 mb-4 flex items-center space-x-2">
+                        <i data-lucide="minus-circle" class="w-5 h-5 text-red-600"></i>
+                        <span>Log Supplier / Wood Expense</span>
+                    </h3>
+                    <form onsubmit="logExpense(event)" class="space-y-4">
+                        <div>
+                            <input type="text" id="expense-item" placeholder="Material / Supplier Purchase" required class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="expense-supplier" placeholder="Supplier / Artisan" required class="w-full px-3 py-2 border rounded-md text-sm">
+                            <input type="number" id="expense-amount" placeholder="Cost ($)" required class="w-full px-3 py-2 border rounded-md text-sm">
+                        </div>
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-md text-sm transition">Add Expense Entry</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Owner WhatsApp Configuration Number (Change to your phone number)
+        const OWNER_PHONE = "1234567890";
+
+        // Initial Sample Products Catalog
+        const initialProducts = [
+            {
+                id: 1,
+                name: "Nordic Minimalist Oak Sofa",
+                category: "instock",
+                price: 850,
+                type: "In-Stock",
+                image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80",
+                dimensions: "80\"L x 34\"W x 32\"H",
+                wood: "Solid Oak Wood"
+            },
+            {
+                id: 2,
+                name: "Handcrafted Teak Dining Table Set",
+                category: "preorder",
+                price: 1200,
+                type: "Pre-Order",
+                leadTime: "Ships in 2-3 Weeks",
+                image: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=600&q=80",
+                dimensions: "72\"L x 36\"W x 30\"H",
+                wood: "Grade-A Teak Wood"
+            },
+            {
+                id: 3,
+                name: "Royal Sheesham King Bed",
+                category: "instock",
+                price: 1100,
+                type: "In-Stock",
+                image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80",
+                dimensions: "78\"L x 72\"W x 48\"H",
+                wood: "Rosewood / Sheesham"
+            }
+        ];
+
+        // Global Data Structures
+        let customDemands = JSON.parse(localStorage.getItem('customDemands')) || [];
+        let salesLogs = JSON.parse(localStorage.getItem('salesLogs')) || [
+            { id: 1, item: "Nordic Oak Sofa", customer: "Alice Smith", amount: 850 }
+        ];
+        let expenseLogs = JSON.parse(localStorage.getItem('expenseLogs')) || [
+            { id: 1, item: "Oak Timber Lumber", supplier: "City Timber Yard", amount: 350 }
+        ];
+
+        // Active image preview string
+        let uploadedImageString = "";
+
+        // Navigation Switcher
+        function switchTab(tab) {
+            document.getElementById('view-storefront').classList.add('hidden');
+            document.getElementById('view-custom-demand').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+
+            document.getElementById('view-' + tab).classList.remove('hidden');
+
+            if(tab === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        // Render Product Cards (Feature 1 & Feature 2)
+        function renderProducts(filter = 'all') {
+            const container = document.getElementById('product-grid');
+            container.innerHTML = "";
+
+            const filtered = initialProducts.filter(p => filter === 'all' || p.category === filter);
+
+            filtered.forEach(p => {
+                const isPreOrder = p.category === 'preorder';
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-md transition flex flex-col justify-between";
+                
+                const waMessage = encodeURIComponent(`Hi, I am interested in ordering: ${p.name} (Price: $${p.price}). Please share delivery details.`);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-48 bg-stone-200">
+                            <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${isPreOrder ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'}">
+                                ${p.type}
+                            </span>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-serif text-lg font-bold text-stone-900">${p.name}</h3>
+                            <p class="text-xs text-stone-500 mt-1">${p.wood} • ${p.dimensions}</p>
+                            ${isPreOrder ? `<p class="text-xs text-amber-700 font-semibold mt-1">⏳ ${p.leadTime}</p>` : ''}
+                            <div class="text-xl font-bold text-stone-900 mt-3">$${p.price}</div>
+                        </div>
+                    </div>
+                    <div class="px-5 pb-5">
+                        <a href="https://wa.me/${OWNER_PHONE}?text=${waMessage}" target="_blank" class="w-full bg-stone-900 hover:bg-stone-800 text-white text-center font-semibold py-2.5 rounded-lg flex items-center justify-center space-x-2 transition">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"></i>
+                            <span>${isPreOrder ? 'Pre-Order on WhatsApp' : 'Order on WhatsApp'}</span>
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Image Upload Base64 Converter
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    uploadedImageString = evt.target.result;
+                    showPreview(uploadedImageString);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleUrlInput(url) {
+            if(url) {
+                uploadedImageString = url;
+                showPreview(url);
+            }
+        }
+
+        function showPreview(src) {
+            const img = document.getElementById('image-preview');
+            img.src = src;
+            document.getElementById('image-preview-container').classList.remove('hidden');
+        }
+
+        // Handle Custom Design Form Submission (Feature 3)
+        function submitCustomDemand(e) {
+            e.preventDefault();
+
+            const newDemand = {
+                id: Date.now(),
+                name: document.getElementById('demand-name').value,
+                phone: document.getElementById('demand-phone').value,
+                dimensions: document.getElementById('demand-dimensions').value || 'Standard',
+                material: document.getElementById('demand-material').value,
+                budget: document.getElementById('demand-budget').value || 'Open',
+                notes: document.getElementById('demand-notes').value,
+                image: uploadedImageString || 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=300&q=80',
+                date: new Date().toLocaleDateString()
+            };
+
+            customDemands.push(newDemand);
+            localStorage.setItem('customDemands', JSON.stringify(customDemands));
+
+            alert('Your custom furniture design demand has been submitted! The owner will review it in the dashboard.');
+            document.getElementById('custom-demand-form').reset();
+            document.getElementById('image-preview-container').classList.add('hidden');
+            uploadedImageString = "";
+
+            switchTab('dashboard');
+        }
+
+        // Dashboard Stat Update & Table Render
+        function updateDashboard() {
+            const totalSales = salesLogs.reduce((sum, s) => sum + Number(s.amount), 0);
+            const totalExpenses = expenseLogs.reduce((sum, e) => sum + Number(e.amount), 0);
+            const netProfit = totalSales - totalExpenses;
+
+            document.getElementById('stat-sales').innerText = `$${totalSales.toFixed(2)}`;
+            document.getElementById('stat-expenses').innerText = `$${totalExpenses.toFixed(2)}`;
+            document.getElementById('stat-profit').innerText = `$${netProfit.toFixed(2)}`;
+            document.getElementById('stat-preorders').innerText = customDemands.length;
+
+            // Render Custom Demands Table
+            const tbody = document.getElementById('table-custom-demands');
+            tbody.innerHTML = "";
+
+            if(customDemands.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-4 text-center text-stone-400">No custom design demands submitted yet.</td></tr>`;
+            } else {
+                customDemands.forEach(d => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-stone-100 hover:bg-stone-50";
+                    tr.innerHTML = `
+                        <td class="px-4 py-3"><img src="${d.image}" class="w-12 h-12 rounded object-cover border"></td>
+                        <td class="px-4 py-3 font-semibold text-stone-900">${d.name}</td>
+                        <td class="px-4 py-3">${d.phone}</td>
+                        <td class="px-4 py-3">${d.material} (${d.dimensions})</td>
+                        <td class="px-4 py-3 font-bold text-amber-700">${d.budget}</td>
+                        <td class="px-4 py-3">
+                            <a href="https://wa.me/${d.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(d.name)},%20I%20reviewed%20your%20custom%20furniture%20demand!" target="_blank" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-emerald-700">Reply Quote</a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        // Log Sale Action
+        function logSale(e) {
+            e.preventDefault();
+            const item = document.getElementById('sale-item').value;
+            const customer = document.getElementById('sale-customer').value;
+            const amount = document.getElementById('sale-amount').value;
+
+            salesLogs.push({ id: Date.now(), item, customer, amount });
+            localStorage.setItem('salesLogs', JSON.stringify(salesLogs));
+            updateDashboard();
+            e.target.reset();
+        }
+
+        // Log Expense Action
+        function logExpense(e) {
+            e.preventDefault();
+            const item = document.getElementById('expense-item').value;
+            const supplier = document.getElementById('expense-supplier').value;
+            const amount = document.getElementById('expense-amount').value;
+
+            expenseLogs.push({ id: Date.now(), item, supplier, amount });
+            localStorage.setItem('expenseLogs', JSON.stringify(expenseLogs));
+            updateDashboard();
+            e.target.reset();
+        }
+
+        // Filter Pills Event Handler
+        function filterProducts(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-stone-900', 'text-white');
+                btn.classList.add('bg-stone-200', 'text-stone-700');
+            });
+            event.target.classList.remove('bg-stone-200', 'text-stone-700');
+            event.target.classList.add('bg-stone-900', 'text-white');
+            renderProducts(type);
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderProducts();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
