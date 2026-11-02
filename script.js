@@ -1,246 +1,78 @@
-// Owner WhatsApp Configuration (Replace with your actual WhatsApp phone number with country code)
-const OWNER_PHONE = "1234567890";
+(function(){
+var OWNER_PW="owner123"; // change this
+var $=function(i){return document.getElementById(i)};
+var mem={};
+function load(k,d){try{var v=localStorage.getItem("cl_"+k);return v?JSON.parse(v):d}catch(e){return k in mem?mem[k]:d}}
+function save(k,v){mem[k]=v;try{localStorage.setItem("cl_"+k,JSON.stringify(v))}catch(e){toast("Storage is full or blocked. Changes last until you close the page.")}}
+var users=load("users",[]),prods=load("prods",null),reqs=load("reqs",[]),sales=load("sales",[]),exps=load("exps",[]),role=load("role",null),filter="All";
+if(!prods){prods=[
+ {id:1,name:"Walnut Lounge Chair",price:18500,cat:"Living Room",type:"stock",mat:"Walnut, linen",dim:"70 x 80 x 85 cm",img:"",c:"#7a5a3c"},
+ {id:2,name:"Sheesham Dining Table",price:42000,cat:"Dining Room",type:"pre",mat:"Sheesham",dim:"180 x 90 cm",img:"",c:"#5a3e2b"},
+ {id:3,name:"Oak Platform Bed",price:36000,cat:"Bedroom",type:"stock",mat:"Oak",dim:"King size",img:"",c:"#a8825a"}];save("prods",prods)}
+var cats=["All","In stock","Pre-order","Living Room","Bedroom","Dining Room","Outdoor","Decor"];
+var money=function(n){return "\u20B9"+Number(n||0).toLocaleString("en-IN")};
+var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+function toast(t){var e=$("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.add("hidden")},2600)}
+function readImg(file,cb){ // downscale to keep storage small
+ if(!file){cb("");return}
+ var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/im.width),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.78))};im.onerror=function(){cb("")};im.src=r.result};r.readAsDataURL(file)}
 
-// Initial Sample Products Catalog
-const initialProducts = [
-    {
-        id: 1,
-        name: "Nordic Minimalist Oak Sofa",
-        category: "instock",
-        price: 850,
-        type: "In-Stock",
-        image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80",
-        dimensions: "80\"L x 34\"W x 32\"H",
-        wood: "Solid Oak Wood"
-    },
-    {
-        id: 2,
-        name: "Handcrafted Teak Dining Table Set",
-        category: "preorder",
-        price: 1200,
-        type: "Pre-Order",
-        leadTime: "Ships in 2-3 Weeks",
-        image: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=600&q=80",
-        dimensions: "72\"L x 36\"W x 30\"H",
-        wood: "Grade-A Teak Wood"
-    },
-    {
-        id: 3,
-        name: "Royal Sheesham King Bed",
-        category: "instock",
-        price: 1100,
-        type: "In-Stock",
-        image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80",
-        dimensions: "78\"L x 72\"W x 48\"H",
-        wood: "Rosewood / Sheesham"
-    }
-];
+// auth
+var tabs=document.querySelectorAll(".tabs button");
+tabs.forEach(function(b){b.onclick=function(){tabs.forEach(function(x){x.setAttribute("aria-selected",x===b)});["login","register","owner"].forEach(function(t){$("t-"+t).classList.toggle("hidden",t!==b.dataset.tab)});$("auth-msg").textContent=""}});
+function err(m){$("auth-msg").textContent=m}
+$("b-login").onclick=function(){var id=$("l-id").value.trim().toLowerCase(),pw=$("l-pw").value;
+ var u=users.find(function(u){return (u.email.toLowerCase()===id||u.phone===id)&&u.pw===pw});
+ if(!u)return err("No account matches those details. Check them or register.");role="customer";save("role",role);enter()};
+$("b-register").onclick=function(){var n=$("r-name").value.trim(),p=$("r-phone").value.trim(),e=$("r-email").value.trim(),w=$("r-pw").value;
+ if(!n||!p||!e||w.length<6)return err("Fill every field. Password needs 6 or more characters.");
+ if(users.some(function(u){return u.email.toLowerCase()===e.toLowerCase()}))return err("That email is already registered. Sign in instead.");
+ users.push({name:n,phone:p,email:e,pw:w});save("users",users);role="customer";save("role",role);enter()};
+$("b-owner").onclick=function(){if($("o-pw").value!==OWNER_PW)return err("Wrong owner password.");role="owner";save("role",role);enter()};
+$("logout").onclick=function(){role=null;save("role",null);$("app").classList.add("hidden");$("auth").classList.remove("hidden");window.scrollTo(0,0)};
+function enter(){$("auth").classList.add("hidden");$("app").classList.remove("hidden");var o=role==="owner";$("admin").classList.toggle("hidden",!o);$("nav-admin").classList.toggle("hidden",!o);render()}
 
-// Global Data Structures (Stored in Browser LocalStorage)
-let customDemands = JSON.parse(localStorage.getItem('customDemands')) || [];
-let salesLogs = JSON.parse(localStorage.getItem('salesLogs')) || [
-    { id: 1, item: "Nordic Oak Sofa", customer: "Alice Smith", amount: 850 }
-];
-let expenseLogs = JSON.parse(localStorage.getItem('expenseLogs')) || [
-    { id: 1, item: "Oak Timber Lumber", supplier: "City Timber Yard", amount: 350 }
-];
+// shop
+function renderShop(){
+ $("chips").innerHTML=cats.map(function(c){return '<button class="chip" aria-pressed="'+(c===filter)+'" data-c="'+c+'">'+c+'</button>'}).join("");
+ $("chips").querySelectorAll(".chip").forEach(function(b){b.onclick=function(){filter=b.dataset.c;renderShop()}});
+ var l=prods.filter(function(p){return filter==="All"||(filter==="In stock"&&p.type==="stock")||(filter==="Pre-order"&&p.type==="pre")||p.cat===filter});
+ $("grid").innerHTML=l.length?l.map(function(p){
+  var bg=p.img?'background-image:url('+p.img+')':'background:linear-gradient(150deg,'+(p.c||"#4a6b60")+',#1c2c26)';
+  return '<article class="item"><div class="thumb" style="'+bg+'">'+(p.img?"":esc(p.name[0]))+'<span class="tag">'+(p.type==="pre"?"Pre-order":"In stock")+'</span></div><div class="body"><h3>'+esc(p.name)+'</h3><small>'+esc(p.cat)+(p.mat?" \u2022 "+esc(p.mat):"")+(p.dim?" \u2022 "+esc(p.dim):"")+'</small><div class="price">'+money(p.price)+'<button class="btn sm" data-o="'+p.id+'">'+(p.type==="pre"?"Pre-order":"Order")+'</button></div></div></article>'}).join(""):'<div class="empty">No products in this collection yet.</div>';
+ $("grid").querySelectorAll("[data-o]").forEach(function(b){b.onclick=function(){var p=prods.find(function(x){return x.id==b.dataset.o});window.open("https://wa.me/?text="+encodeURIComponent("Hi, I want to "+(p.type==="pre"?"pre-order":"order")+": "+p.name+" ("+money(p.price)+")"),"_blank","noopener")}})}
 
-// Active Image Preview String
-let uploadedImageString = "";
+// custom request
+var cImg="";
+$("c-file").onchange=function(e){readImg(e.target.files[0],function(d){cImg=d;var p=$("c-prev");if(d){p.src=d;p.classList.remove("hidden")}else p.classList.add("hidden")})};
+$("c-send").onclick=function(){var n=$("c-name").value.trim(),p=$("c-phone").value.trim();
+ if(!cImg||!n||!p)return toast("Add a reference image, your name and WhatsApp number.");
+ reqs.unshift({id:Date.now(),img:cImg,name:n,phone:p,spec:$("c-size").value+" | "+$("c-wood").value+(($("c-notes").value)?" | "+$("c-notes").value:""),budget:$("c-budget").value});
+ save("reqs",reqs);["c-name","c-phone","c-size","c-budget","c-notes","c-file"].forEach(function(i){$(i).value=""});cImg="";$("c-prev").classList.add("hidden");toast("Request sent. We will message you on WhatsApp.");render()};
 
-// 1. Navigation Tab Switcher
-function switchTab(tab) {
-    document.getElementById('view-storefront').classList.add('hidden');
-    document.getElementById('view-custom-demand').classList.add('hidden');
-    document.getElementById('view-dashboard').classList.add('hidden');
+// admin
+$("p-add").onclick=function(){var n=$("p-name").value.trim(),pr=$("p-price").value;
+ if(!n||!pr)return toast("Product name and price are required.");
+ readImg($("p-file").files[0],function(d){prods.unshift({id:Date.now(),name:n,price:+pr,cat:$("p-cat").value,type:$("p-type").value,mat:$("p-mat").value,dim:$("p-dim").value,img:d});save("prods",prods);["p-name","p-price","p-mat","p-dim","p-file"].forEach(function(i){$(i).value=""});toast("Published to shop.");render()})};
+$("sa-add").onclick=function(){var a=+$("sa-a").value;if(!a)return toast("Enter a sale amount.");sales.push({d:$("sa-d").value,a:a});save("sales",sales);$("sa-d").value=$("sa-a").value="";toast("Sale added.");render()};
+$("ex-add").onclick=function(){var a=+$("ex-a").value;if(!a)return toast("Enter an expense amount.");exps.push({d:$("ex-d").value,a:a});save("exps",exps);$("ex-d").value=$("ex-a").value="";toast("Expense added.");render()};
+function renderAdmin(){
+ var r=sales.reduce(function(s,x){return s+x.a},0),e=exps.reduce(function(s,x){return s+x.a},0),n=r-e;
+ $("s-rev").textContent=money(r);$("s-exp").textContent=money(e);$("s-net").textContent=money(n);$("s-net").className=n>=0?"pos":"neg";$("s-cnt").textContent=prods.length;
+ $("reqs").innerHTML=reqs.length?reqs.map(function(q){return '<tr><td><img src="'+q.img+'" alt=""></td><td>'+esc(q.name)+'</td><td><a href="https://wa.me/'+esc(q.phone.replace(/\D/g,""))+'" target="_blank" rel="noopener">'+esc(q.phone)+'</a></td><td>'+esc(q.spec)+'</td><td>'+esc(q.budget)+'</td><td><button class="btn danger sm" data-dr="'+q.id+'">Delete</button></td></tr>'}).join(""):'<tr><td colspan="6" style="color:var(--muted)">No requests yet. They appear here when customers send a design.</td></tr>';
+ $("plist").innerHTML=prods.map(function(p){return '<tr><td>'+esc(p.name)+'</td><td>'+esc(p.cat)+'</td><td>'+money(p.price)+'</td><td style="text-align:right"><button class="btn danger sm" data-dp="'+p.id+'">Remove</button></td></tr>'}).join("");
+ document.querySelectorAll("[data-dr]").forEach(function(b){b.onclick=function(){reqs=reqs.filter(function(x){return x.id!=b.dataset.dr});save("reqs",reqs);render()}});
+ document.querySelectorAll("[data-dp]").forEach(function(b){b.onclick=function(){prods=prods.filter(function(x){return x.id!=b.dataset.dp});save("prods",prods);render()}})}
+function render(){renderShop();if(role==="owner")renderAdmin();reveal()}
 
-    document.getElementById('view-' + tab).classList.remove('hidden');
-
-    if (tab === 'dashboard') {
-        updateDashboard();
-    }
-}
-
-// 2. Render Product Cards (Feature 1 & Feature 2)
-function renderProducts(filter = 'all') {
-    const container = document.getElementById('product-grid');
-    if (!container) return;
-    container.innerHTML = "";
-
-    const filtered = initialProducts.filter(p => filter === 'all' || p.category === filter);
-
-    filtered.forEach(p => {
-        const isPreOrder = p.category === 'preorder';
-        const card = document.createElement('div');
-        card.className = "bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-md transition flex flex-col justify-between";
-        
-        const waMessage = encodeURIComponent(`Hi, I am interested in ordering: ${p.name} (Price: $${p.price}). Please share delivery details.`);
-
-        card.innerHTML = `
-            <div>
-                <div class="relative h-48 bg-stone-200">
-                    <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
-                    <span class="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${isPreOrder ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'}">
-                        ${p.type}
-                    </span>
-                </div>
-                <div class="p-5">
-                    <h3 class="font-serif text-lg font-bold text-stone-900">${p.name}</h3>
-                    <p class="text-xs text-stone-500 mt-1">${p.wood} • ${p.dimensions}</p>
-                    ${isPreOrder ? `<p class="text-xs text-amber-700 font-semibold mt-1">⏳ ${p.leadTime}</p>` : ''}
-                    <div class="text-xl font-bold text-stone-900 mt-3">$${p.price}</div>
-                </div>
-            </div>
-            <div class="px-5 pb-5">
-                <a href="https://wa.me/${OWNER_PHONE}?text=${waMessage}" target="_blank" class="w-full bg-stone-900 hover:bg-stone-800 text-white text-center font-semibold py-2.5 rounded-lg flex items-center justify-center space-x-2 transition">
-                    <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"></i>
-                    <span>${isPreOrder ? 'Pre-Order on WhatsApp' : 'Order on WhatsApp'}</span>
-                </a>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-    if (window.lucide) lucide.createIcons();
-}
-
-// 3. Image Upload & Preview Base64 Converter
-function handleImageUpload(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            uploadedImageString = evt.target.result;
-            showPreview(uploadedImageString);
-        }
-        reader.readAsDataURL(file);
-    }
-}
-
-function handleUrlInput(url) {
-    if (url) {
-        uploadedImageString = url;
-        showPreview(url);
-    }
-}
-
-function showPreview(src) {
-    const img = document.getElementById('image-preview');
-    if (img) {
-        img.src = src;
-        document.getElementById('image-preview-container').classList.remove('hidden');
-    }
-}
-
-// 4. Handle Custom Design Form Submission (Feature 3)
-function submitCustomDemand(e) {
-    e.preventDefault();
-
-    const newDemand = {
-        id: Date.now(),
-        name: document.getElementById('demand-name').value,
-        phone: document.getElementById('demand-phone').value,
-        dimensions: document.getElementById('demand-dimensions').value || 'Standard',
-        material: document.getElementById('demand-material').value,
-        budget: document.getElementById('demand-budget').value || 'Open',
-        notes: document.getElementById('demand-notes').value,
-        image: uploadedImageString || 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=300&q=80',
-        date: new Date().toLocaleDateString()
-    };
-
-    customDemands.push(newDemand);
-    localStorage.setItem('customDemands', JSON.stringify(customDemands));
-
-    alert('Your custom furniture design demand has been submitted! The owner will review it in the dashboard.');
-    document.getElementById('custom-demand-form').reset();
-    document.getElementById('image-preview-container').classList.add('hidden');
-    uploadedImageString = "";
-
-    switchTab('dashboard');
-}
-
-// 5. Dashboard Stat Calculations & Data Table Render
-function updateDashboard() {
-    const totalSales = salesLogs.reduce((sum, s) => sum + Number(s.amount), 0);
-    const totalExpenses = expenseLogs.reduce((sum, e) => sum + Number(e.amount), 0);
-    const netProfit = totalSales - totalExpenses;
-
-    const salesElem = document.getElementById('stat-sales');
-    const expensesElem = document.getElementById('stat-expenses');
-    const profitElem = document.getElementById('stat-profit');
-    const preordersElem = document.getElementById('stat-preorders');
-
-    if (salesElem) salesElem.innerText = `$${totalSales.toFixed(2)}`;
-    if (expensesElem) expensesElem.innerText = `$${totalExpenses.toFixed(2)}`;
-    if (profitElem) profitElem.innerText = `$${netProfit.toFixed(2)}`;
-    if (preordersElem) preordersElem.innerText = customDemands.length;
-
-    // Render Custom Demands Table
-    const tbody = document.getElementById('table-custom-demands');
-    if (!tbody) return;
-    tbody.innerHTML = "";
-
-    if (customDemands.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-4 text-center text-stone-400">No custom design demands submitted yet.</td></tr>`;
-    } else {
-        customDemands.forEach(d => {
-            const tr = document.createElement('tr');
-            tr.className = "border-b border-stone-100 hover:bg-stone-50";
-            tr.innerHTML = `
-                <td class="px-4 py-3"><img src="${d.image}" class="w-12 h-12 rounded object-cover border"></td>
-                <td class="px-4 py-3 font-semibold text-stone-900">${d.name}</td>
-                <td class="px-4 py-3">${d.phone}</td>
-                <td class="px-4 py-3">${d.material} (${d.dimensions})</td>
-                <td class="px-4 py-3 font-bold text-amber-700">${d.budget}</td>
-                <td class="px-4 py-3">
-                    <a href="https://wa.me/${d.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(d.name)},%20I%20reviewed%20your%20custom%20furniture%20demand!" target="_blank" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-emerald-700">Reply Quote</a>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-}
-
-// 6. Log Completed Sale
-function logSale(e) {
-    e.preventDefault();
-    const item = document.getElementById('sale-item').value;
-    const customer = document.getElementById('sale-customer').value;
-    const amount = document.getElementById('sale-amount').value;
-
-    salesLogs.push({ id: Date.now(), item, customer, amount });
-    localStorage.setItem('salesLogs', JSON.stringify(salesLogs));
-    updateDashboard();
-    e.target.reset();
-}
-
-// 7. Log Expense Entry
-function logExpense(e) {
-    e.preventDefault();
-    const item = document.getElementById('expense-item').value;
-    const supplier = document.getElementById('expense-supplier').value;
-    const amount = document.getElementById('expense-amount').value;
-
-    expenseLogs.push({ id: Date.now(), item, supplier, amount });
-    localStorage.setItem('expenseLogs', JSON.stringify(expenseLogs));
-    updateDashboard();
-    e.target.reset();
-}
-
-// 8. Filter Pills Handler
-function filterProducts(type) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('bg-stone-900', 'text-white');
-        btn.classList.add('bg-stone-200', 'text-stone-700');
-    });
-    if (event && event.target) {
-        event.target.classList.remove('bg-stone-200', 'text-stone-700');
-        event.target.classList.add('bg-stone-900', 'text-white');
-    }
-    renderProducts(type);
-}
-
-// Initialize Application
-window.onload = function() {
-    renderProducts();
-    if (window.lucide) lucide.createIcons();
-};
+// smooth scroll effects (IntersectionObserver)
+var prog=document.createElement("div");prog.id="prog";document.body.appendChild(prog);
+var navEl=document.querySelector("nav"),tick=false;
+window.addEventListener("scroll",function(){if(tick)return;tick=true;requestAnimationFrame(function(){var h=document.documentElement.scrollHeight-innerHeight;prog.style.transform="scaleX("+(h>0?scrollY/h:0)+")";navEl.classList.toggle("scrolled",scrollY>10);tick=false})},{passive:true});
+var io=null,calm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+if("IntersectionObserver" in window&&!calm){io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var t=e.target;t.classList.add("in");io.unobserve(t);setTimeout(function(){t.classList.remove("rv","in");t.style.removeProperty("--d")},1100)})},{threshold:.12,rootMargin:"0px 0px -6% 0px"})}
+function reveal(){if(!io)return;var groups=[".hero2 h1",".hero2 .sub",".bento div",".sec-head",".item","#custom .split>*",".stat","#admin .card"];
+ groups.forEach(function(g){document.querySelectorAll(g).forEach(function(el,i){if(el.dataset.rv)return;el.dataset.rv=1;el.classList.add("rv");el.style.setProperty("--d",Math.min(i%6,5)*90+"ms");io.observe(el)})})}
+var _enter=enter;enter=function(){_enter();var a=$("app");a.classList.remove("app-in");void a.offsetWidth;a.classList.add("app-in");window.scrollTo(0,0)};
+if(role)enter();
+})();
